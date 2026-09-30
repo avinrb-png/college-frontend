@@ -92,6 +92,13 @@ function renderStudentInfo(data) {
 function renderMarksTable(data) {
     const marksBody = document.getElementById('marksBody');
     if (!marksBody) return;
+    const isYearly = String(data.exam_type || '').toLowerCase() === 'yearly';
+    const examLabel = isYearly ? 'Yearly Exam' : 'Monthly Test';
+    const maxMarksBySubject = isYearly
+        ? { English: 80, Kannada: 80, Mathematics: 80, Physics: 70, Chemistry: 70, 'Computer Science': 70, Biology: 70 }
+        : { English: 40, Kannada: 40, Mathematics: 40, Physics: 35, Chemistry: 35, 'Computer Science': 35, Biology: 35 };
+    const marksHeader = document.getElementById('marksHeader');
+    if (marksHeader) marksHeader.textContent = `Marks (${examLabel})`;
 
     const rawMarks = data.marks || {};
     const marks = normalizeMarks(rawMarks);
@@ -99,8 +106,7 @@ function renderMarksTable(data) {
     // If server returned subject columns too, merge them
     const columnMap = {
         Physics: data.physics, Chemistry: data.chemistry, Mathematics: data.mathematics,
-        'Computer Science': data.computer_science, English: data.english, Kannada: data.kannada,
-        Biology: data.biology
+        'Computer Science': data.computer_science, English: data.english, Kannada: data.kannada, Biology: data.biology,
     };
     Object.entries(columnMap).forEach(([k, v]) => {
         if ((marks[k] == null || marks[k] === '') && v != null && v !== '') marks[k] = v;
@@ -131,16 +137,21 @@ function renderMarksTable(data) {
     }
 
     marksBody.innerHTML = finalSubjects.map((subject) => {
+        const maxMarks = maxMarksBySubject[subject];
         return `
             <tr>
                 <td>${subject}</td>
-                <td>${formatMarkValue(marks[subject])}</td>
+                <td>${formatMarkValue(marks[subject])}${maxMarks ? ` / ${maxMarks}` : ''}</td>
             </tr>
         `;
     }).join('');
 }
 function renderStats(data) {
-    document.getElementById('statTotal').textContent = data.total_marks != null ? `${data.total_marks}` : '—';
+    const examType = String(data.exam_type || '').toLowerCase();
+    const totalMaxMarks = data.total_max_marks ?? (examType === 'yearly' ? 450 : 225);
+    document.getElementById('statTotal').textContent = data.total_marks != null
+        ? `${data.total_marks} / ${totalMaxMarks}`
+        : '—';
     document.getElementById('statPercent').textContent = data.percentage != null ? `${data.percentage}%` : '—';
     const rankEl = document.getElementById('statRank');
     if (rankEl) rankEl.textContent = data.rank ?? data.Rank ?? '—';

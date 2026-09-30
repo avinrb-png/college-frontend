@@ -76,6 +76,18 @@
                 </select>
             </div>
 
+            <div style="margin-bottom: 16px;">
+                <label for="examTypeSelect"
+                    style="display: block; color: #D1D5DB; font-size: 0.875rem; margin-bottom: 6px;">
+                    Select Exam Type:
+                </label>
+                <select id="examTypeSelect"
+                    style="width: 100%; padding: 10px; border-radius: 8px; background-color: #1F2937; color: #F3F4F6; border: 1px solid #374151; outline: none;">
+                    <option value="monthly">Monthly Test</option>
+                    <option value="yearly">Yearly Exam</option>
+                </select>
+            </div>
+
             <div class="upload-area" id="uploadArea">
                 <i class="fas fa-cloud-arrow-up"></i>
                 <p>Click or drag & drop your <strong>.xlsx</strong> file here</p>
@@ -318,6 +330,7 @@
         const fileNameDisplay = document.getElementById('fileName');
         const uploadBtn = document.getElementById('uploadBtn');
         const batchSelect = document.getElementById('batchSelect');
+        const examTypeSelect = document.getElementById('examTypeSelect');
         const uploadResult = document.getElementById('uploadResult');
 
         // 1. Handle file input trigger when clicking the drop area
@@ -373,6 +386,7 @@
             const formData = new FormData();
             formData.append('file', file);
             formData.append('batch', selectedBatch);
+            formData.append('exam_type', examTypeSelect.value);
 
             uploadBtn.disabled = true;
             uploadResult.innerHTML = '<p style="color:#F59E0B; font-size:0.9rem; margin-top:10px;"><i class="fas fa-spinner fa-spin"></i> Processing & Ranking...</p>';
